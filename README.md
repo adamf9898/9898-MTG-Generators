@@ -1,4 +1,4 @@
-# MTG Chaos RPG Generators
+# 9898-MTG-Generators
 
 A collection of generators and tools for running a Magic: The Gathering (MTG) Chaos RPG campaign. This repository provides scripts and utilities to create random events, encounters, and other content to enhance your MTG RPG experience.
 
@@ -34,3 +34,4 @@ This project is licensed under the MIT License.
 
 ## Credits
 Inspired by Magic: The Gathering and the broader RPG community.
+
