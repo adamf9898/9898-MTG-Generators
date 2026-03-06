@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MTG All Skills Web</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #222; color: #eee; margin: 0; padding: 0; }
+    .container { max-width: 1100px; margin: 40px auto; padding: 24px; background: #333; border-radius: 12px; box-shadow: 0 0 16px #0008; }
+    h1 { text-align: center; color: #ffb300; }
+    .skill-section { margin-bottom: 36px; padding: 18px; background: #444; border-radius: 8px; box-shadow: 0 2px 8px #0004; }
+    .skill-section h2 { color: #ffb300; margin-top: 0; }
+    .skill-section button, .skill-section input, .skill-section textarea { margin: 6px 0; }
+    .skill-section button { background: #ffb300; color: #222; border: none; border-radius: 4px; padding: 8px 16px; font-weight: bold; cursor: pointer; }
+    .skill-section button:hover { background: #ffd54f; }
+    .result { margin-top: 12px; }
+    .footer { text-align: center; margin-top: 32px; color: #aaa; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>MTG All Skills Web</h1>
+    <!-- Generate Custom Magic Card -->
+    <div class="skill-section">
+      <h2>Generate Custom Magic Card</h2>
+      <button onclick="fetchRandomCard()">Fetch Random Card from Scryfall</button>
+      <div id="randomCardResult" class="result"></div>
+      <hr>
+      <form id="customCardForm" onsubmit="createCustomCard(event)">
+        <h3>Create Your Own Card</h3>
+        <input type="text" name="name" placeholder="Card Name" required><br>
+        <input type="text" name="type" placeholder="Type Line" required><br>
+        <input type="text" name="mana" placeholder="Mana Cost"><br>
+        <textarea name="text" placeholder="Rules Text" rows="3"></textarea><br>
+        <input type="text" name="flavor" placeholder="Flavor Text"><br>
+        <input type="text" name="power" placeholder="Power"><br>
+        <input type="text" name="toughness" placeholder="Toughness"><br>
+        <button type="submit">Create Card</button>
+      </form>
+      <div id="customCardResult" class="result"></div>
+    </div>
+    <!-- Scryfall Card Search -->
+    <div class="skill-section">
+      <h2>Scryfall Card Search</h2>
+      <form id="searchForm" onsubmit="searchScryfall(event)">
+        <input type="text" name="query" placeholder="Search Scryfall..." required>
+        <button type="submit">Search</button>
+      </form>
+      <div id="searchResult" class="result"></div>
+    </div>
+    <!-- Batch Fetch Random Cards -->
+    <div class="skill-section">
+      <h2>Batch Fetch Random Cards</h2>
+      <input type="number" id="batchCount" min="1" max="20" value="5" placeholder="Batch Size">
+      <button onclick="batchFetchCards()">Fetch Batch</button>
+      <div id="batchResult" class="result"></div>
+    </div>
+    <!-- Card Balancing & Playtesting -->
+    <div class="skill-section">
+      <h2>Card Balancing & Playtesting</h2>
+      <button onclick="showTemplate('balancing')">Show Balancing Template</button>
+      <div id="balancingTemplate" class="result"></div>
+    </div>
+    <!-- MTG Card Text/Image Integration -->
+    <div class="skill-section">
+      <h2>MTG Card Text/Image Integration</h2>
+      <button onclick="showTemplate('textImage')">Show Integration Template</button>
+      <div id="textImageTemplate" class="result"></div>
+    </div>
+    <!-- Custom Card Web Generator -->
+    <div class="skill-section">
+      <h2>Custom Card Web Generator</h2>
+      <button onclick="showTemplate('webGenerator')">Show Web Generator Template</button>
+      <div id="webGeneratorTemplate" class="result"></div>
+    </div>
+    <!-- Automated Prompts -->
+    <div class="skill-section">
+      <h2>Generate Automated Prompts</h2>
+      <form onsubmit="generatePrompts(event)">
+        <input type="text" name="theme" placeholder="Prompt Theme (e.g. card creation)" required>
+        <button type="submit">Generate Prompts</button>
+      </form>
+      <button onclick="randomPrompts()">Random Generate</button>
+      <div id="promptsTemplate" class="result"></div>
+    </div>
+    <!-- Automated Instructions -->
+    <div class="skill-section">
+      <h2>Generate Automated Instructions</h2>
+      <form onsubmit="generateInstructions(event)">
+        <input type="text" name="goal" placeholder="Instruction Goal (e.g. cube setup)" required>
+        <button type="submit">Generate Instructions</button>
+      </form>
+      <button onclick="randomInstructions()">Random Generate</button>
+      <div id="instructionsTemplate" class="result"></div>
+    </div>
+    <!-- Automated Tasks -->
+    <div class="skill-section">
+      <h2>Generate Automated Tasks</h2>
+      <form onsubmit="generateTasks(event)">
+        <input type="text" name="project" placeholder="Project or Goal" required>
+        <button type="submit">Generate Tasks</button>
+      </form>
+      <button onclick="randomTasks()">Random Generate</button>
+      <div id="tasksTemplate" class="result"></div>
+    </div>
+    <!-- Automated Tests -->
+    <div class="skill-section">
+      <h2>Generate Automated Tests</h2>
+      <form onsubmit="generateTests(event)">
+        <input type="text" name="scope" placeholder="Test Scope (e.g. mechanics)" required>
+        <button type="submit">Generate Tests</button>
+      </form>
+      <button onclick="randomTests()">Random Generate</button>
+      <div id="testsTemplate" class="result"></div>
+    </div>
+    <!-- Automated Custom MTG Sets -->
+    <div class="skill-section">
+      <h2>Generate Automated Custom MTG Sets</h2>
+      <form onsubmit="generateSets(event)">
+        <input type="text" name="theme" placeholder="Set Theme" required>
+        <button type="submit">Generate Set Template</button>
+      </form>
+      <button onclick="randomSets()">Random Generate</button>
+      <div id="setsTemplate" class="result"></div>
+    </div>
+    <!-- Automated Custom MTG Formats -->
+    <div class="skill-section">
+      <h2>Generate Automated Custom MTG Formats</h2>
+      <form onsubmit="generateFormats(event)">
+        <input type="text" name="rules" placeholder="Format Rules/Constraints" required>
+        <button type="submit">Generate Format Template</button>
+      </form>
+      <button onclick="randomFormats()">Random Generate</button>
+      <div id="formatsTemplate" class="result"></div>
+    </div>
+    <!-- Automated Custom MTG Mechanics -->
+    <div class="skill-section">
+      <h2>Generate Automated Custom MTG Mechanics</h2>
+      <form onsubmit="generateMechanics(event)">
+        <input type="text" name="theme" placeholder="Mechanic Theme/Goal" required>
+        <button type="submit">Generate Mechanic Template</button>
+      </form>
+      <button onclick="randomMechanics()">Random Generate</button>
+      <div id="mechanicsTemplate" class="result"></div>
+    </div>
+    <!-- Automated Custom MTG Cubes -->
+    <div class="skill-section">
+      <h2>Generate Automated Custom MTG Cubes</h2>
+      <form onsubmit="generateCubes(event)">
+        <input type="text" name="size" placeholder="Cube Size/Theme" required>
+        <button type="submit">Generate Cube Template</button>
+      </form>
+      <button onclick="randomCubes()">Random Generate</button>
+      <div id="cubesTemplate" class="result"></div>
+    </div>
+    <!-- Automated Custom MTG Generators -->
+    <div class="skill-section">
+      <h2>Generate Automated Custom MTG Generators</h2>
+      <form onsubmit="generateGenerators(event)">
+        <input type="text" name="purpose" placeholder="Generator Purpose" required>
+        <button type="submit">Generate Generator Template</button>
+      </form>
+      <button onclick="randomGenerators()">Random Generate</button>
+      <div id="generatorsTemplate" class="result"></div>
+    </div>
+    <div class="footer">
+      <p>MTG All Skills Web &copy; 2026 | Powered by Scryfall API & Custom Skills</p>
+    </div>
+  </div>
+  <script>
+            // Helper: transition to new page
+            function transitionPage(content) {
+              document.body.innerHTML = `<div style="background:#222;color:#eee;min-height:100vh;padding:40px;font-family:Arial,sans-serif;">
+                <button onclick="location.reload()" style="background:#ffb300;color:#222;border:none;border-radius:4px;padding:8px 16px;font-weight:bold;cursor:pointer;position:fixed;top:24px;left:24px;">Back</button>
+                <div style="max-width:900px;margin:60px auto 0 auto;background:#333;padding:32px;border-radius:12px;box-shadow:0 0 16px #0008;">
+                  ${content}
+                </div>
+              </div>`;
+            }
+
+            // Helper: fetch and remix Scryfall card, then transition
+            async function generateCustomCard(theme = '') {
+              let query = 'random';
+              if (theme === 'blue creature') query = 'search?q=c%3Au+type%3Acreature';
+              else if (theme === 'legendary artifact') query = 'search?q=type%3Aartifact+type%3Alegendary';
+              else if (theme) query = `search?q=${encodeURIComponent(theme)}`;
+              let url = 'https://api.scryfall.com/cards/' + query;
+              let card;
+              try {
+                const resp = await fetch(url);
+                const data = await resp.json();
+                card = data.data ? data.data[0] : data;
+              } catch {
+                transitionPage('Error fetching card.');
+                return;
+              }
+              // Remix: change name, add random flavor, tweak stats
+              const newName = card.name + ' Redux';
+              const newFlavor = card.flavor_text ? card.flavor_text + ' | Remixed.' : 'A new legend emerges.';
+              const newPower = card.power ? (parseInt(card.power) + 1) : '';
+              const newToughness = card.toughness ? (parseInt(card.toughness) + 1) : '';
+              transitionPage(`
+                <h2>Custom Magic Card</h2>
+                <strong>${newName}</strong><br>
+                <img src="${card.image_uris ? card.image_uris.normal : (card.card_faces ? card.card_faces[0].image_uris.normal : '')}" alt="${newName}" style="max-width:180px;border-radius:6px;box-shadow:0 0 8px #0006;"><br>
+                <em>${card.type_line}</em><br>
+                <span>${card.oracle_text ? card.oracle_text.replace(/\n/g,'<br>') : ''}</span><br>
+                <span style="color:#ffb300">Mana Cost: ${card.mana_cost || 'N/A'}</span><br>
+                <span style="color:#aaa">Flavor: ${newFlavor}</span><br>
+                <span>Power/Toughness: ${newPower || card.power || ''}/${newToughness || card.toughness || ''}</span>
+              `);
+            }
+
+            // Replace randomPrompts with actionable generation
+            function randomPrompts() {
+              generateCustomCard();
+            }
+            // Replace random blue creature
+            function randomBlueCreature() {
+              generateCustomCard('blue creature');
+            }
+            // Replace random legendary artifact
+            function randomLegendaryArtifact() {
+              generateCustomCard('legendary artifact');
+            }
+
+            // Procedural cube/set/mechanic/format generation
+            function randomCubes() {
+              const sizes = ['360-card Vintage', '540-card Modern', '720-card Legacy', 'Budget', 'Theme'];
+              const size = randomFrom(sizes);
+              const cards = Array.from({length: 10}, (_,i) => `Card ${i+1} - ${size}`);
+              transitionPage(`<h2>Generated Cube</h2><ul>` + cards.map(c => `<li>${c}</li>`).join('') + `</ul>`);
+            }
+            function randomSets() {
+              const themes = ['Steampunk', 'Underwater', 'Space Opera', 'Ancient Egypt', 'Cyberpunk'];
+              const theme = randomFrom(themes);
+              const cards = Array.from({length: 10}, (_,i) => `Set Card ${i+1} - ${theme}`);
+              transitionPage(`<h2>Generated Set</h2><ul>` + cards.map(c => `<li>${c}</li>`).join('') + `</ul>`);
+            }
+            function randomMechanics() {
+              const mechanics = ['Morph', 'Energy', 'Saga', 'Adventure', 'Escape'];
+              const chosen = randomFrom(mechanics);
+              const details = `Mechanic: ${chosen} | Effect: ${chosen} triggers when you draw a card.`;
+              transitionPage(`<h2>Generated Mechanic</h2><ul><li>${details}</li></ul>`);
+            }
+            function randomFormats() {
+              const rules = ['Singleton', 'Commander', 'Draft', 'Tiny Leaders', 'Pauper'];
+              const chosen = randomFrom(rules);
+              const structure = `Format: ${chosen} | Rule: Only one copy of each card allowed.`;
+              transitionPage(`<h2>Generated Format</h2><ul><li>${structure}</li></ul>`);
+            }
+            function randomGenerators() {
+              const purposes = ['mechanic generator', 'set generator', 'cube generator', 'card generator', 'format generator'];
+              const chosen = randomFrom(purposes);
+              const logic = `Generator: ${chosen} | Logic: Generates new content every time.`;
+              transitionPage(`<h2>Generated Generator</h2><ul><li>${logic}</li></ul>`);
+            }
+            function randomTasks() {
+              const projects = ['custom set', 'mechanic testing', 'cube build', 'format creation', 'card balancing'];
+              const chosen = randomFrom(projects);
+              const tasks = [`Task: Start ${chosen}`, `Task: Review ${chosen}`, `Task: Complete ${chosen}`];
+              transitionPage(`<h2>Generated Tasks</h2><ul>` + tasks.map(t => `<li>${t}</li>`).join('') + `</ul>`);
+            }
+            function randomTests() {
+              const scopes = ['mechanics', 'sets', 'cubes', 'formats', 'artifacts'];
+              const chosen = randomFrom(scopes);
+              const tests = [`Test: Validate ${chosen}`, `Test: Simulate ${chosen}`, `Test: Report ${chosen}`];
+              transitionPage(`<h2>Generated Tests</h2><ul>` + tests.map(t => `<li>${t}</li>`).join('') + `</ul>`);
+            }
+        // Utility for random selection
+        function randomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        // Deeper automation: random generation for each skill
+        function randomPrompts() {
+          const themes = ['card creation', 'cube drafting', 'mechanic design', 'set flavor', 'artifact generation'];
+          generatePrompts({ preventDefault: () => {}, target: { theme: { value: randomFrom(themes) } } });
+        }
+        function randomInstructions() {
+          const goals = ['cube setup', 'playtesting', 'web generator', 'balancing', 'integration'];
+          generateInstructions({ preventDefault: () => {}, target: { goal: { value: randomFrom(goals) } } });
+        }
+        function randomTasks() {
+          const projects = ['custom set', 'mechanic testing', 'cube build', 'format creation', 'card balancing'];
+          generateTasks({ preventDefault: () => {}, target: { project: { value: randomFrom(projects) } } });
+        }
+        function randomTests() {
+          const scopes = ['mechanics', 'sets', 'cubes', 'formats', 'artifacts'];
+          generateTests({ preventDefault: () => {}, target: { scope: { value: randomFrom(scopes) } } });
+        }
+        function randomSets() {
+          const themes = ['Steampunk', 'Underwater', 'Space Opera', 'Ancient Egypt', 'Cyberpunk'];
+          generateSets({ preventDefault: () => {}, target: { theme: { value: randomFrom(themes) } } });
+        }
+        function randomFormats() {
+          const rules = ['Singleton', 'Commander', 'Draft', 'Tiny Leaders', 'Pauper'];
+          generateFormats({ preventDefault: () => {}, target: { rules: { value: randomFrom(rules) } } });
+        }
+        function randomMechanics() {
+          const themes = ['Morph', 'Energy', 'Saga', 'Adventure', 'Escape'];
+          generateMechanics({ preventDefault: () => {}, target: { theme: { value: randomFrom(themes) } } });
+        }
+        function randomCubes() {
+          const sizes = ['360-card Vintage', '540-card Modern', '720-card Legacy', 'Budget', 'Theme'];
+          generateCubes({ preventDefault: () => {}, target: { size: { value: randomFrom(sizes) } } });
+        }
+        function randomGenerators() {
+          const purposes = ['mechanic generator', 'set generator', 'cube generator', 'card generator', 'format generator'];
+          generateGenerators({ preventDefault: () => {}, target: { purpose: { value: randomFrom(purposes) } } });
+        }
+    function fetchRandomCard() {
+      const resultDiv = document.getElementById('randomCardResult');
+      resultDiv.innerHTML = 'Loading...';
+      fetch('https://api.scryfall.com/cards/random')
+        .then(response => response.json())
+        .then(card => {
+          resultDiv.innerHTML = `
+            <strong>${card.name}</strong><br>
+            <img src="${card.image_uris ? card.image_uris.normal : (card.card_faces ? card.card_faces[0].image_uris.normal : '')}" alt="${card.name}" style="max-width:180px;border-radius:6px;box-shadow:0 0 8px #0006;"><br>
+            <em>${card.type_line}</em><br>
+            <span>${card.oracle_text ? card.oracle_text.replace(/\n/g,'<br>') : ''}</span><br>
+            <span style="color:#ffb300">Mana Cost: ${card.mana_cost || 'N/A'}</span><br>
+            <span style="color:#aaa">Set: ${card.set_name}</span>
+          `;
+        })
+        .catch(err => {
+          resultDiv.innerHTML = 'Error fetching card.';
+        });
+    }
+
+    function createCustomCard(event) {
+      event.preventDefault();
+      const form = event.target;
+      const card = {
+        name: form.name.value,
+        type: form.type.value,
+        mana: form.mana.value,
+        text: form.text.value,
+        flavor: form.flavor.value,
+        power: form.power.value,
+        toughness: form.toughness.value
+      };
+      const resultDiv = document.getElementById('customCardResult');
+      resultDiv.innerHTML = `
+        <strong>${card.name}</strong><br>
+        <em>${card.type}</em><br>
+        <span>${card.text.replace(/\n/g,'<br>')}</span><br>
+        <span style="color:#ffb300">Mana Cost: ${card.mana || 'N/A'}</span><br>
+        <span style="color:#aaa">Flavor: ${card.flavor || ''}</span><br>
+        <span>Power/Toughness: ${card.power || ''}/${card.toughness || ''}</span>
+      `;
+    }
+
+    function searchScryfall(event) {
+      event.preventDefault();
+      const form = event.target;
+      const query = encodeURIComponent(form.query.value);
+      const resultDiv = document.getElementById('searchResult');
+      resultDiv.innerHTML = 'Searching...';
+      fetch(`https://api.scryfall.com/cards/search?q=${query}`)
+        .then(response => response.json())
+        .then(data => {
+          if (!data.data || data.data.length === 0) {
+            resultDiv.innerHTML = 'No cards found.';
+            return;
+          }
+          resultDiv.innerHTML = data.data.slice(0,5).map(card => `
+            <strong>${card.name}</strong><br>
+            <img src="${card.image_uris ? card.image_uris.normal : (card.card_faces ? card.card_faces[0].image_uris.normal : '')}" alt="${card.name}" style="max-width:120px;border-radius:6px;box-shadow:0 0 8px #0006;"><br>
+            <em>${card.type_line}</em><br>
+            <span>${card.oracle_text ? card.oracle_text.replace(/\n/g,'<br>') : ''}</span><br>
+            <hr>`).join('');
+        })
+        .catch(err => {
+          resultDiv.innerHTML = 'Error searching Scryfall.';
+        });
+    }
+
+    function batchFetchCards() {
+      const count = parseInt(document.getElementById('batchCount').value);
+      const resultDiv = document.getElementById('batchResult');
+      resultDiv.innerHTML = 'Fetching batch...';
+      let cards = [];
+      let fetched = 0;
+      for (let i = 0; i < count; i++) {
+        fetch('https://api.scryfall.com/cards/random')
+          .then(response => response.json())
+          .then(card => {
+            cards.push(`<strong>${card.name}</strong><br>
+              <img src="${card.image_uris ? card.image_uris.normal : (card.card_faces ? card.card_faces[0].image_uris.normal : '')}" alt="${card.name}" style="max-width:120px;border-radius:6px;box-shadow:0 0 8px #0006;"><br>
+              <em>${card.type_line}</em><br>
+              <span>${card.oracle_text ? card.oracle_text.replace(/\n/g,'<br>') : ''}</span><br><hr>`);
+            fetched++;
+            if (fetched === count) {
+              resultDiv.innerHTML = cards.join('');
+            }
+          })
+          .catch(err => {
+            fetched++;
+            if (fetched === count) {
+              resultDiv.innerHTML = cards.join('');
+            }
+          });
+      }
+    }
+
+    function showTemplate(type) {
+      // Deprecated: replaced by interactive forms
+    }
+
+    function generatePrompts(event) {
+      event.preventDefault();
+      const theme = event.target.theme.value;
+      const prompts = [
+        `Generate a new custom Magic card using Scryfall inspiration for ${theme}.`,
+        `Create a unique ${theme} card, inspired by Scryfall.`,
+        `Draft a legendary ${theme} based on random Scryfall card.`
+      ];
+      document.getElementById('promptsTemplate').innerHTML = `<strong>Generated Prompts:</strong><ul>` + prompts.map(p => `<li>${p}</li>`).join('') + `</ul>`;
+    }
+
+    function generateInstructions(event) {
+      event.preventDefault();
+      const goal = event.target.goal.value;
+      const instructions = [
+        `Step-by-step workflow for ${goal}.`,
+        `How to use Scryfall API for ${goal} inspiration.`,
+        `Formatting and completion checks for ${goal}.`
+      ];
+      document.getElementById('instructionsTemplate').innerHTML = `<strong>Generated Instructions:</strong><ul>` + instructions.map(i => `<li>${i}</li>`).join('') + `</ul>`;
+    }
+
+    function generateTasks(event) {
+      event.preventDefault();
+      const project = event.target.project.value;
+      const tasks = [
+        `Define project or goal: ${project}.`,
+        `Generate actionable tasks for ${project}.`,
+        `Organize and prioritize tasks for ${project}.`
+      ];
+      document.getElementById('tasksTemplate').innerHTML = `<strong>Generated Tasks:</strong><ul>` + tasks.map(t => `<li>${t}</li>`).join('') + `</ul>`;
+    }
+
+    function generateTests(event) {
+      event.preventDefault();
+      const scope = event.target.scope.value;
+      const tests = [
+        `Define test scope: ${scope}.`,
+        `Generate test cases for ${scope}.`,
+        `Review and run tests for ${scope}.`
+      ];
+      document.getElementById('testsTemplate').innerHTML = `<strong>Generated Tests:</strong><ul>` + tests.map(t => `<li>${t}</li>`).join('') + `</ul>`;
+    }
+
+    function generateSets(event) {
+      event.preventDefault();
+      const theme = event.target.theme.value;
+      const sets = [
+        `Define set theme and parameters: ${theme}.`,
+        `Generate card pool for set: ${theme}.`,
+        `Review for balance and flavor in set: ${theme}.`
+      ];
+      document.getElementById('setsTemplate').innerHTML = `<strong>Generated Set Template:</strong><ul>` + sets.map(s => `<li>${s}</li>`).join('') + `</ul>`;
+    }
+
+    function generateFormats(event) {
+      event.preventDefault();
+      const rules = event.target.rules.value;
+      const formats = [
+        `Define format rules and constraints: ${rules}.`,
+        `Generate format structure for: ${rules}.`,
+        `Review for playability of format: ${rules}.`
+      ];
+      document.getElementById('formatsTemplate').innerHTML = `<strong>Generated Format Template:</strong><ul>` + formats.map(f => `<li>${f}</li>`).join('') + `</ul>`;
+    }
+
+    function generateMechanics(event) {
+      event.preventDefault();
+      const theme = event.target.theme.value;
+      const mechanics = [
+        `Define mechanic theme or goal: ${theme}.`,
+        `Generate mechanic details for: ${theme}.`,
+        `Review for balance and innovation in mechanic: ${theme}.`
+      ];
+      document.getElementById('mechanicsTemplate').innerHTML = `<strong>Generated Mechanic Template:</strong><ul>` + mechanics.map(m => `<li>${m}</li>`).join('') + `</ul>`;
+    }
+
+    function generateCubes(event) {
+      event.preventDefault();
+      const size = event.target.size.value;
+      const cubes = [
+        `Define cube size and theme: ${size}.`,
+        `Generate card list for cube: ${size}.`,
+        `Review for balance and diversity in cube: ${size}.`
+      ];
+      document.getElementById('cubesTemplate').innerHTML = `<strong>Generated Cube Template:</strong><ul>` + cubes.map(c => `<li>${c}</li>`).join('') + `</ul>`;
+    }
+
+    function generateGenerators(event) {
+      event.preventDefault();
+      const purpose = event.target.purpose.value;
+      const generators = [
+        `Define generator purpose: ${purpose}.`,
+        `Generate generator logic/code for: ${purpose}.`,
+        `Test and refine generator for: ${purpose}.`
+      ];
+      document.getElementById('generatorsTemplate').innerHTML = `<strong>Generated Generator Template:</strong><ul>` + generators.map(g => `<li>${g}</li>`).join('') + `</ul>`;
+    }
+  </script>
+</body>
+</html>

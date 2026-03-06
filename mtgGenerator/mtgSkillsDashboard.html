@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MTG Skills Dashboard</title>
+  <style>
+    @font-face {
+      font-family: 'AR CENA';
+      src: local('AR CENA'), url('https://fonts.cdnfonts.com/s/16299/ARCENA.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    body {
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+      font-size: 24px;
+      color: #CC0000;
+      background: #000;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+    .dashboard {
+      max-width: 1100px;
+      margin: 40px auto;
+      background: rgba(40,40,40,0.95);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px #0008;
+      padding: 32px 24px 24px 24px;
+    }
+    .dashboard h1 {
+      text-align: center;
+      font-size: 2.4em;
+      margin-bottom: 24px;
+      letter-spacing: 2px;
+      color: #CC0000;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+    }
+    .menu {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .menu button {
+      background: #4e5d6c;
+      color: #CC0000;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 1.1em;
+      cursor: pointer;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+      transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+      box-shadow: 0 2px 8px #0003;
+    }
+    .menu button:hover {
+      background: #6c7a89;
+      color: #FFD700;
+      box-shadow: 0 4px 16px #0004;
+    }
+    .skills-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .skill-card {
+      background: #35363a;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #0003;
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 180px;
+      transition: box-shadow 0.2s, background 0.3s;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+      color: #CC0000;
+      text-align: center;
+    }
+    .skill-card:hover {
+      box-shadow: 0 6px 24px #0005;
+      background: #222;
+    }
+    .skill-card h2 {
+      font-size: 1.3em;
+      margin-bottom: 8px;
+      color: #FFD700;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+    }
+    .skill-card p {
+      font-size: 1em;
+      margin-bottom: 16px;
+      color: #e0e0e0;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+    }
+    .skill-card button {
+      background: #FFD700;
+      color: #232526;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      font-size: 1em;
+      cursor: pointer;
+      margin-top: auto;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+      transition: background 0.2s, color 0.2s;
+    }
+    .skill-card button:hover {
+      background: #CC0000;
+      color: #FFD700;
+    }
+    .footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.95em;
+      margin-top: 24px;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+    }
+    /* Theme switcher */
+    .theme-switcher {
+      margin: 18px 0 32px 0;
+      text-align: center;
+    }
+    .theme-switcher button {
+      background: #222;
+      color: #FFD700;
+      border: 2px solid #FFD700;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 1em;
+      margin: 0 8px;
+      cursor: pointer;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+      transition: background 0.2s, color 0.2s;
+    }
+    .theme-switcher button.active {
+      background: #FFD700;
+      color: #CC0000;
+    }
+  </style>
+    .dashboard {
+      max-width: 1100px;
+      margin: 40px auto;
+      background: #2a2a2e;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px #0008;
+      padding: 32px 24px 24px 24px;
+    }
+    .dashboard h1 {
+      text-align: center;
+      font-size: 2.4em;
+      margin-bottom: 24px;
+      letter-spacing: 2px;
+    }
+    .menu {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .menu button {
+      background: #4e5d6c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px #0003;
+    }
+    .menu button:hover {
+      background: #6c7a89;
+      box-shadow: 0 4px 16px #0004;
+    }
+    .skills-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .skill-card {
+      background: #35363a;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #0003;
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-height: 180px;
+      transition: box-shadow 0.2s;
+    }
+    .skill-card:hover {
+      box-shadow: 0 6px 24px #0005;
+    }
+    .skill-card h2 {
+      font-size: 1.3em;
+      margin-bottom: 8px;
+      color: #ffb300;
+    }
+    .skill-card p {
+      font-size: 1em;
+      margin-bottom: 16px;
+      color: #e0e0e0;
+    }
+    .skill-card button {
+      background: #ffb300;
+      color: #232526;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      font-size: 1em;
+      cursor: pointer;
+      margin-top: auto;
+      transition: background 0.2s;
+    }
+    .skill-card button:hover {
+      background: #ffd54f;
+    }
+    .footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.95em;
+      margin-top: 24px;
+    }
+  </style>
+  <style>
+    body { font-family: Arial, sans-serif; background: #222; color: #eee; margin: 0; padding: 0; }
+    .container { max-width: 900px; margin: 40px auto; padding: 24px; background: #333; border-radius: 12px; box-shadow: 0 0 16px #0008; }
+    h1 { text-align: center; color: #ffb300; }
+    .skill-list { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; }
+    .skill { background: #444; border-radius: 8px; padding: 18px; width: 260px; box-shadow: 0 2px 8px #0004; }
+    .skill h2 { color: #ffb300; font-size: 1.2em; margin-top: 0; }
+    .skill p { font-size: 0.98em; margin-bottom: 12px; }
+    .skill button { background: #ffb300; color: #222; border: none; border-radius: 4px; padding: 8px 16px; font-weight: bold; cursor: pointer; }
+    .skill button:hover { background: #ffd54f; }
+    .footer { text-align: center; margin-top: 32px; color: #aaa; }
+  </style>
+</head>
+<body>
+    <div class="theme-switcher">
+      <button onclick="setTheme('classic')" id="themeClassic" class="active">Classic</button>
+      <button onclick="setTheme('dark')" id="themeDark">Dark</button>
+      <button onclick="setTheme('gold')" id="themeGold">Gold</button>
+      <button onclick="setTheme('forest')" id="themeForest">Forest</button>
+    </div>
+    <script>
+      function setTheme(theme) {
+        document.body.className = '';
+        document.getElementById('themeClassic').classList.remove('active');
+        document.getElementById('themeDark').classList.remove('active');
+        document.getElementById('themeGold').classList.remove('active');
+        document.getElementById('themeForest').classList.remove('active');
+        if (theme === 'classic') {
+          document.body.style.background = '#000';
+          document.body.style.color = '#CC0000';
+          document.getElementById('themeClassic').classList.add('active');
+        } else if (theme === 'dark') {
+          document.body.style.background = 'linear-gradient(135deg, #232526 0%, #414345 100%)';
+          document.body.style.color = '#f5f5f5';
+          document.getElementById('themeDark').classList.add('active');
+        } else if (theme === 'gold') {
+          document.body.style.background = 'linear-gradient(135deg, #FFD700 0%, #CC0000 100%)';
+          document.body.style.color = '#232526';
+          document.getElementById('themeGold').classList.add('active');
+        } else if (theme === 'forest') {
+          document.body.style.background = 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)';
+          document.body.style.color = '#FFD700';
+          document.getElementById('themeForest').classList.add('active');
+        }
+      }
+      // Set default theme
+      setTheme('classic');
+    </script>
+  <div class="dashboard">
+    <h1>MTG Skills Dashboard</h1>
+    <div class="menu">
+      <button onclick="location.href='mtgCardEditor.html'">Custom Magic Card Editor</button>
+      <button onclick="location.href='mtgCubeBuilder.html'">Cube Builder</button>
+      <button onclick="location.href='mtgSetGenerator.html'">Set Generator</button>
+      <button onclick="location.href='mtgMechanicDesigner.html'">Mechanic Designer</button>
+      <button onclick="location.href='mtgFormatCreator.html'">Format Creator</button>
+      <button onclick="location.href='mtgBatchGenerator.html'">Batch Card Generator</button>
+      <button onclick="location.href='mtgWebGenerator.html'">Web Generator</button>
+    </div>
+    <div class="skills-list">
+      <div class="skill-card">
+        <h2>Custom Magic Card Editor</h2>
+        <p>Create, edit, and export unique Magic cards with Scryfall inspiration and full customization.</p>
+        <button onclick="location.href='mtgCardEditor.html'">Open Editor</button>
+      </div>
+      <div class="skill-card">
+        <h2>Cube Builder</h2>
+        <p>Build, balance, and export custom MTG cubes with card lists, themes, and settings.</p>
+        <button onclick="location.href='mtgCubeBuilder.html'">Open Cube Builder</button>
+      </div>
+      <div class="skill-card">
+        <h2>Set Generator</h2>
+        <p>Generate custom MTG sets with themes, card pools, and flavor options.</p>
+        <button onclick="location.href='mtgSetGenerator.html'">Open Set Generator</button>
+      </div>
+      <div class="skill-card">
+        <h2>Mechanic Designer</h2>
+        <p>Design new MTG mechanics, review for balance, and export for playtesting.</p>
+        <button onclick="location.href='mtgMechanicDesigner.html'">Open Mechanic Designer</button>
+      </div>
+      <div class="skill-card">
+        <h2>Format Creator</h2>
+        <p>Create custom MTG formats with rules, constraints, and playability checks.</p>
+        <button onclick="location.href='mtgFormatCreator.html'">Open Format Creator</button>
+      </div>
+      <div class="skill-card">
+        <h2>Batch Card Generator</h2>
+        <p>Generate multiple custom Magic cards in one session, with color/type filters.</p>
+        <button onclick="location.href='mtgBatchGenerator.html'">Open Batch Generator</button>
+      </div>
+      <div class="skill-card">
+        <h2>Web Generator</h2>
+        <p>Build web-based generators for MTG content, export HTML/CSS/JS, and share.</p>
+        <button onclick="location.href='mtgWebGenerator.html'">Open Web Generator</button>
+      </div>
+    </div>
+    <div class="footer">
+      <p>MTG Skills Dashboard &copy; 2026 | Powered by Scryfall API & Custom Skills</p>
+    </div>
+  </div>
+</body>
+</html>

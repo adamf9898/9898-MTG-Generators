@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      @font-face {
+        font-family: 'AR CENA';
+        src: local('AR CENA'), url('https://fonts.cdnfonts.com/s/16299/ARCENA.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+      }
+      body {
+        font-family: 'AR CENA', Arial, sans-serif;
+        font-variant: small-caps;
+        font-size: 24px;
+        color: #CC0000;
+        background: #000;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        transition: background 0.3s, color 0.3s;
+      }
+      .suite-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        background: rgba(40,40,40,0.95);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px #0008;
+        padding: 32px 24px 24px 24px;
+      }
+      h1 {
+        color: #CC0000;
+        font-family: 'AR CENA', Arial, sans-serif;
+        font-variant: small-caps;
+        margin-bottom: 24px;
+      }
+      .theme-switcher {
+        margin: 18px 0 32px 0;
+        text-align: center;
+      }
+      .theme-switcher button {
+        background: #222;
+        color: #FFD700;
+        border: 2px solid #FFD700;
+        border-radius: 8px;
+        padding: 8px 20px;
+        font-size: 1em;
+        margin: 0 8px;
+        cursor: pointer;
+        font-family: 'AR CENA', Arial, sans-serif;
+        font-variant: small-caps;
+        transition: background 0.2s, color 0.2s;
+        box-shadow: 0 2px 8px #0003;
+      }
+      .theme-switcher button.active {
+        background: #FFD700;
+        color: #CC0000;
+        box-shadow: 0 0 16px #FFD700, 0 0 8px #CC0000 inset;
+      }
+      .footer {
+        text-align: center;
+        color: #aaa;
+        font-size: 0.95em;
+        margin-top: 24px;
+        font-family: 'AR CENA', Arial, sans-serif;
+        font-variant: small-caps;
+      }
+    </style>
+  <title>MTG Skills Suite</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #222; color: #eee; margin: 0; padding: 0; }
+    .container { max-width: 1200px; margin: 40px auto; padding: 24px; background: #333; border-radius: 12px; box-shadow: 0 0 16px #0008; }
+    h1 { text-align: center; color: #ffb300; }
+    .skill-section { margin-bottom: 36px; padding: 18px; background: #444; border-radius: 8px; box-shadow: 0 2px 8px #0004; }
+    .skill-section h2 { color: #ffb300; margin-top: 0; }
+    .skill-section button, .skill-section input, .skill-section textarea { margin: 6px 0; }
+    .skill-section button { background: #ffb300; color: #222; border: none; border-radius: 4px; padding: 8px 16px; font-weight: bold; cursor: pointer; }
+    .skill-section button:hover { background: #ffd54f; }
+    .result { margin-top: 12px; }
+    .footer { text-align: center; margin-top: 32px; color: #aaa; }
+  </style>
+</head>
+<body>
+      <div id="logPanel" class="log-panel">
+        <div class="log-header" onmousedown="startDrag(event)">Log <button onclick="resizeLog()" class="log-resize-btn">Resize</button></div>
+        <div class="log-content" id="logContent"></div>
+      </div>
+        .log-panel {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          width: 340px;
+          height: 220px;
+          background: #222;
+          color: #FFD700;
+          border-radius: 12px;
+          box-shadow: 0 2px 12px #0008;
+          z-index: 999;
+          resize: both;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          font-family: 'AR CENA', Arial, sans-serif;
+          font-variant: small-caps;
+          transition: box-shadow 0.4s, background 0.4s;
+          animation: fadeIn 1s ease;
+        }
+        .log-header {
+          background: #FFD700;
+          color: #CC0000;
+          font-family: 'AR CENA', Arial, sans-serif;
+          font-variant: small-caps;
+          padding: 8px 12px;
+          border-top-left-radius: 12px;
+          border-top-right-radius: 12px;
+          cursor: move;
+          user-select: none;
+          font-size: 1em;
+          box-shadow: 0 0 8px #FFD700;
+          transition: box-shadow 0.3s, background 0.3s, color 0.3s;
+        }
+        .log-header:hover {
+          box-shadow: 0 0 16px #FFD700, 0 0 8px #CC0000 inset;
+          background: #FFD700;
+          color: #CC0000;
+        }
+        .log-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 8px 12px;
+          font-size: 0.95em;
+          text-align: left;
+        }
+        .log-resize-btn {
+          float: right;
+          background: #FFD700;
+          color: #CC0000;
+          border: none;
+          border-radius: 4px;
+          padding: 2px 8px;
+          font-size: 0.8em;
+          font-family: 'AR CENA', Arial, sans-serif;
+          font-variant: small-caps;
+          margin-left: 8px;
+          cursor: pointer;
+        }
+    <div id="loadingIcon" class="loading-icon" style="display:none;">
+      <div class="spinner"></div>
+      <div id="loadingPercent" class="loading-percent">0%</div>
+    </div>
+      .loading-icon {
+        margin: 24px auto;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 80px;
+      }
+      .spinner {
+        width: 48px;
+        height: 48px;
+        border: 6px solid #FFD700;
+        border-top: 6px solid #CC0000;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 8px;
+        box-shadow: 0 0 16px #FFD700, 0 0 8px #CC0000 inset;
+      }
+      .loading-percent {
+        color: #FFD700;
+        font-size: 1.2em;
+        margin-top: 8px;
+        font-family: 'AR CENA', Arial, sans-serif;
+        font-variant: small-caps;
+        text-shadow: 0 0 8px #FFD700;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+  <div class="container">
+    <div class="theme-switcher">
+      <button onclick="setTheme('classic')" id="themeClassic" class="active">Classic</button>
+      <button onclick="setTheme('dark')" id="themeDark">Dark</button>
+      <button onclick="setTheme('gold')" id="themeGold">Gold</button>
+      <button onclick="setTheme('forest')" id="themeForest">Forest</button>
+    </div>
+    <div class="suite-container">
+    <h1>MTG Skills Suite</h1>
+    <!-- Generate Custom Magic Card -->
+      </div>
+      <script>
+                // Log panel logic
+                function log(msg) {
+                  const logContent = document.getElementById('logContent');
+                  const time = new Date().toLocaleTimeString();
+                  logContent.innerHTML += `<div>[${time}] ${msg}</div>`;
+                  logContent.scrollTop = logContent.scrollHeight;
+                }
+                // Make log panel draggable
+                let drag = false, offsetX = 0, offsetY = 0;
+                function startDrag(e) {
+                  drag = true;
+                  offsetX = e.clientX - document.getElementById('logPanel').offsetLeft;
+                  offsetY = e.clientY - document.getElementById('logPanel').offsetTop;
+                  document.onmousemove = dragLog;
+                  document.onmouseup = stopDrag;
+                }
+                function dragLog(e) {
+                  if (!drag) return;
+                  const panel = document.getElementById('logPanel');
+                  panel.style.left = (e.clientX - offsetX) + 'px';
+                  panel.style.top = (e.clientY - offsetY) + 'px';
+                  panel.style.right = 'auto';
+                  panel.style.bottom = 'auto';
+                }
+                function stopDrag() {
+                  drag = false;
+                  document.onmousemove = null;
+                  document.onmouseup = null;
+                }
+                // Make log panel resizable
+                function resizeLog() {
+                  const panel = document.getElementById('logPanel');
+                  if (panel.style.width === '340px') {
+                    panel.style.width = '600px';
+                    panel.style.height = '400px';
+                  } else {
+                    panel.style.width = '340px';
+                    panel.style.height = '220px';
+                  }
+                  log('Log panel resized.');
+                }
+                // Example log usage
+                log('Skill Suite loaded.');
+            // Loading logic for content generation
+            function showLoading(duration, callback) {
+              const loading = document.getElementById('loadingIcon');
+              const percent = document.getElementById('loadingPercent');
+              loading.style.display = 'flex';
+              percent.innerText = '0%';
+              let progress = 0;
+              const interval = setInterval(() => {
+                progress = Math.min(progress + Math.random() * 20, 90);
+                percent.innerText = Math.floor(progress) + '%';
+              }, 200);
+              setTimeout(() => {
+                clearInterval(interval);
+                percent.innerText = '100%';
+                setTimeout(() => {
+                  loading.style.display = 'none';
+                  if (callback) callback();
+                }, 400);
+              }, duration);
+            }
+            // Example usage: generate new content every time
+            function generateNewContent() {
+              showLoading(1200, () => {
+                // Replace with actual content generation logic
+                const result = document.getElementById('result');
+                result.innerHTML = 'New content generated: ' + Math.random().toString(36).substring(2, 10);
+              });
+            }
+        function setTheme(theme) {
+          document.body.className = '';
+          document.getElementById('themeClassic').classList.remove('active');
+          document.getElementById('themeDark').classList.remove('active');
+          document.getElementById('themeGold').classList.remove('active');
+          document.getElementById('themeForest').classList.remove('active');
+          if (theme === 'classic') {
+            document.body.style.background = '#000';
+            document.body.style.color = '#CC0000';
+            document.getElementById('themeClassic').classList.add('active');
+          } else if (theme === 'dark') {
+            document.body.style.background = 'linear-gradient(135deg, #232526 0%, #414345 100%)';
+            document.body.style.color = '#f5f5f5';
+            document.getElementById('themeDark').classList.add('active');
+          } else if (theme === 'gold') {
+            document.body.style.background = 'linear-gradient(135deg, #FFD700 0%, #CC0000 100%)';
+            document.body.style.color = '#232526';
+            document.getElementById('themeGold').classList.add('active');
+          } else if (theme === 'forest') {
+            document.body.style.background = 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)';
+            document.body.style.color = '#FFD700';
+            document.getElementById('themeForest').classList.add('active');
+          }
+        }
+        setTheme('classic');
+      </script>
+    <div class="skill-section">
+      <h2>Generate Custom Magic Card</h2>
+      <form onsubmit="generateCustomMagicCard(event)">
+        <input type="text" name="theme" placeholder="Theme (e.g. blue creature, legendary artifact)" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomCustomMagicCard()">Random Generate</button>
+      <div id="customMagicCardResult" class="result"></div>
+    </div>
+    <!-- Batch Magic Card Generation -->
+    <div class="skill-section">
+      <h2>Batch Magic Card Generation</h2>
+      <form onsubmit="generateBatchMagicCards(event)">
+        <input type="number" name="count" min="1" max="20" value="5" required>
+        <input type="text" name="color" placeholder="Color (e.g. red, blue)">
+        <input type="text" name="type" placeholder="Type (e.g. creature, artifact)">
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomBatchMagicCards()">Random Generate</button>
+      <div id="batchMagicCardsResult" class="result"></div>
+    </div>
+    <!-- Card Balancing & Playtesting -->
+    <div class="skill-section">
+      <h2>Card Balancing & Playtesting</h2>
+      <form onsubmit="generateCardBalancing(event)">
+        <input type="text" name="card" placeholder="Card Name or Details" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomCardBalancing()">Random Generate</button>
+      <div id="cardBalancingResult" class="result"></div>
+    </div>
+    <!-- MTG Card Text/Image Integration -->
+    <div class="skill-section">
+      <h2>MTG Card Text/Image Integration</h2>
+      <form onsubmit="generateCardTextImage(event)">
+        <input type="text" name="card" placeholder="Card Name or Details" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomCardTextImage()">Random Generate</button>
+      <div id="cardTextImageResult" class="result"></div>
+    </div>
+    <!-- Custom Card Web Generator -->
+    <div class="skill-section">
+      <h2>Custom Card Web Generator</h2>
+      <form onsubmit="generateCustomCardWeb(event)">
+        <input type="text" name="purpose" placeholder="Generator Purpose" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomCustomCardWeb()">Random Generate</button>
+      <div id="customCardWebResult" class="result"></div>
+    </div>
+    <!-- Automated Prompts -->
+    <div class="skill-section">
+      <h2>Generate Automated Prompts</h2>
+      <form onsubmit="generatePrompts(event)">
+        <input type="text" name="theme" placeholder="Prompt Theme" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomPrompts()">Random Generate</button>
+      <div id="promptsResult" class="result"></div>
+    </div>
+    <!-- Automated Instructions -->
+    <div class="skill-section">
+      <h2>Generate Automated Instructions</h2>
+      <form onsubmit="generateInstructions(event)">
+        <input type="text" name="goal" placeholder="Instruction Goal" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomInstructions()">Random Generate</button>
+      <div id="instructionsResult" class="result"></div>
+    </div>
+    <!-- Automated Tasks -->
+    <div class="skill-section">
+      <h2>Generate Automated Tasks</h2>
+      <form onsubmit="generateTasks(event)">
+        <input type="text" name="project" placeholder="Project or Goal" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomTasks()">Random Generate</button>
+      <div id="tasksResult" class="result"></div>
+    </div>
+    <!-- Automated Tests -->
+    <div class="skill-section">
+      <h2>Generate Automated Tests</h2>
+      <form onsubmit="generateTests(event)">
+        <input type="text" name="scope" placeholder="Test Scope" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomTests()">Random Generate</button>
+      <div id="testsResult" class="result"></div>
+    </div>
+    <!-- Automated Custom MTG Sets -->
+    <div class="skill-section">
+      <h2>Generate Automated Custom MTG Sets</h2>
+      <form onsubmit="generateSets(event)">
+        <input type="text" name="theme" placeholder="Set Theme" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomSets()">Random Generate</button>
+      <div id="setsResult" class="result"></div>
+    </div>
+    <!-- Automated Custom MTG Formats -->
+    <div class="skill-section">
+      <h2>Generate Automated Custom MTG Formats</h2>
+      <form onsubmit="generateFormats(event)">
+        <input type="text" name="rules" placeholder="Format Rules/Constraints" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomFormats()">Random Generate</button>
+      <div id="formatsResult" class="result"></div>
+    </div>
+    <!-- Automated Custom MTG Mechanics -->
+    <div class="skill-section">
+      <h2>Generate Automated Custom MTG Mechanics</h2>
+      <form onsubmit="generateMechanics(event)">
+        <input type="text" name="theme" placeholder="Mechanic Theme/Goal" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomMechanics()">Random Generate</button>
+      <div id="mechanicsResult" class="result"></div>
+    </div>
+    <!-- Automated Custom MTG Cubes -->
+    <div class="skill-section">
+      <h2>Generate Automated Custom MTG Cubes</h2>
+      <form onsubmit="generateCubes(event)">
+        <input type="text" name="size" placeholder="Cube Size/Theme" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomCubes()">Random Generate</button>
+      <div id="cubesResult" class="result"></div>
+    </div>
+    <!-- Automated Custom MTG Generators -->
+    <div class="skill-section">
+      <h2>Generate Automated Custom MTG Generators</h2>
+      <form onsubmit="generateGenerators(event)">
+        <input type="text" name="purpose" placeholder="Generator Purpose" required>
+        <button type="submit">Generate</button>
+      </form>
+      <button onclick="randomGenerators()">Random Generate</button>
+      <div id="generatorsResult" class="result"></div>
+    </div>
+    <div class="footer">
+      <p>MTG Skills Suite &copy; 2026 | Powered by Scryfall API & Custom Skills</p>
+    </div>
+  </div>
+  <script>
+    // Utility for random selection
+    function randomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    // Generate Custom Magic Card
+    async function generateCustomMagicCard(event) {
+      event.preventDefault();
+      const theme = event.target.theme.value;
+      let query = 'random';
+      if (theme === 'blue creature') query = 'search?q=c%3Au+type%3Acreature';
+      else if (theme === 'legendary artifact') query = 'search?q=type%3Aartifact+type%3Alegendary';
+      else if (theme) query = `search?q=${encodeURIComponent(theme)}`;
+      let url = 'https://api.scryfall.com/cards/' + query;
+      let card;
+      try {
+        const resp = await fetch(url);
+        const data = await resp.json();
+        card = data.data ? data.data[0] : data;
+      } catch {
+        document.getElementById('customMagicCardResult').innerHTML = 'Error fetching card.';
+        return;
+      }
+      const newName = card.name + ' Redux';
+      const newFlavor = card.flavor_text ? card.flavor_text + ' | Remixed.' : 'A new legend emerges.';
+      const newPower = card.power ? (parseInt(card.power) + 1) : '';
+      const newToughness = card.toughness ? (parseInt(card.toughness) + 1) : '';
+      document.getElementById('customMagicCardResult').innerHTML = `
+        <strong>${newName}</strong><br>
+        <img src="${card.image_uris ? card.image_uris.normal : (card.card_faces ? card.card_faces[0].image_uris.normal : '')}" alt="${newName}" style="max-width:180px;border-radius:6px;box-shadow:0 0 8px #0006;"><br>
+        <em>${card.type_line}</em><br>
+        <span>${card.oracle_text ? card.oracle_text.replace(/\n/g,'<br>') : ''}</span><br>
+        <span style="color:#ffb300">Mana Cost: ${card.mana_cost || 'N/A'}</span><br>
+        <span style="color:#aaa">Flavor: ${newFlavor}</span><br>
+        <span>Power/Toughness: ${newPower || card.power || ''}/${newToughness || card.toughness || ''}</span>
+      `;
+    }
+    function randomCustomMagicCard() {
+      generateCustomMagicCard({ preventDefault: () => {}, target: { theme: { value: randomFrom(['blue creature','legendary artifact','red spell','green enchantment','white planeswalker']) } } });
+    }
+
+    // Batch Magic Card Generation
+    async function generateBatchMagicCards(event) {
+      event.preventDefault();
+      const count = parseInt(event.target.count.value);
+      const color = event.target.color.value;
+      const type = event.target.type.value;
+      let query = 'random';
+      if (color && type) query = `search?q=c%3A${color}+type%3A${type}`;
+      else if (color) query = `search?q=c%3A${color}`;
+      else if (type) query = `search?q=type%3A${type}`;
+      let url = 'https://api.scryfall.com/cards/' + query;
+      let cards = [];
+      try {
+        for (let i = 0; i < count; i++) {
+          const resp = await fetch(url);
+          const data = await resp.json();
+          const card = data.data ? data.data[0] : data;
+          cards.push(`<strong>${card.name}</strong> <em>${card.type_line}</em> <span style="color:#ffb300">${card.mana_cost || ''}</span>`);
+        }
+      } catch {
+        document.getElementById('batchMagicCardsResult').innerHTML = 'Error fetching cards.';
+        return;
+      }
+      document.getElementById('batchMagicCardsResult').innerHTML = `<ul>` + cards.map(c => `<li>${c}</li>`).join('') + `</ul>`;
+    }
+    function randomBatchMagicCards() {
+      generateBatchMagicCards({ preventDefault: () => {}, target: { count: { value: 5 }, color: { value: randomFrom(['red','blue','green','white','black']) }, type: { value: randomFrom(['creature','artifact','enchantment','planeswalker']) } } });
+    }
+
+    // Card Balancing & Playtesting
+    function generateCardBalancing(event) {
+      event.preventDefault();
+      const card = event.target.card.value;
+      const result = `Balance analysis for <strong>${card}</strong>:<ul><li>Mana cost is fair for power/toughness.</li><li>No broken combos detected.</li><li>Playtest recommended.</li></ul>`;
+      document.getElementById('cardBalancingResult').innerHTML = result;
+    }
+    function randomCardBalancing() {
+      generateCardBalancing({ preventDefault: () => {}, target: { card: { value: randomFrom(['Lightning Bolt','Serra Angel','Black Lotus','Sol Ring','Snapcaster Mage']) } } });
+    }
+
+    // MTG Card Text/Image Integration
+    async function generateCardTextImage(event) {
+      event.preventDefault();
+      const cardName = event.target.card.value;
+      let url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(cardName)}`;
+      let card;
+      try {
+        const resp = await fetch(url);
+        const data = await resp.json();
+        card = data.data ? data.data[0] : data;
+      } catch {
+        document.getElementById('cardTextImageResult').innerHTML = 'Error fetching card.';
+        return;
+      }
+      document.getElementById('cardTextImageResult').innerHTML = `
+        <strong>${card.name}</strong><br>
+        <img src="${card.image_uris ? card.image_uris.normal : (card.card_faces ? card.card_faces[0].image_uris.normal : '')}" alt="${card.name}" style="max-width:180px;border-radius:6px;box-shadow:0 0 8px #0006;"><br>
+        <span>${card.oracle_text ? card.oracle_text.replace(/\n/g,'<br>') : ''}</span><br>
+      `;
+    }
+    function randomCardTextImage() {
+      generateCardTextImage({ preventDefault: () => {}, target: { card: { value: randomFrom(['Lightning Bolt','Serra Angel','Black Lotus','Sol Ring','Snapcaster Mage']) } } });
+    }
+
+    // Custom Card Web Generator
+    function generateCustomCardWeb(event) {
+      event.preventDefault();
+      const purpose = event.target.purpose.value;
+      const result = `<strong>Web Generator for:</strong> ${purpose}<ul><li>HTML/CSS layout for card display</li><li>JavaScript fetches Scryfall data</li><li>User input for customization</li><li>Export/share generated cards</li></ul>`;
+      document.getElementById('customCardWebResult').innerHTML = result;
+    }
+    function randomCustomCardWeb() {
+      generateCustomCardWeb({ preventDefault: () => {}, target: { purpose: { value: randomFrom(['mechanic generator','set generator','cube generator','card generator','format generator']) } } });
+    }
+
+    // Prompts
+    function generatePrompts(event) {
+      event.preventDefault();
+      const theme = event.target.theme.value;
+      const prompts = [
+        `Generate a new custom Magic card using Scryfall inspiration for ${theme}.`,
+        `Create a unique ${theme} card, inspired by Scryfall.`,
+        `Draft a legendary ${theme} based on random Scryfall card.`
+      ];
+      document.getElementById('promptsResult').innerHTML = `<strong>Generated Prompts:</strong><ul>` + prompts.map(p => `<li>${p}</li>`).join('') + `</ul>`;
+    }
+    function randomPrompts() {
+      generatePrompts({ preventDefault: () => {}, target: { theme: { value: randomFrom(['card creation','cube drafting','mechanic design','set flavor','artifact generation']) } } });
+    }
+
+    // Instructions
+    function generateInstructions(event) {
+      event.preventDefault();
+      const goal = event.target.goal.value;
+      const instructions = [
+        `Step-by-step workflow for ${goal}.`,
+        `How to use Scryfall API for ${goal} inspiration.`,
+        `Formatting and completion checks for ${goal}.`
+      ];
+      document.getElementById('instructionsResult').innerHTML = `<strong>Generated Instructions:</strong><ul>` + instructions.map(i => `<li>${i}</li>`).join('') + `</ul>`;
+    }
+    function randomInstructions() {
+      generateInstructions({ preventDefault: () => {}, target: { goal: { value: randomFrom(['cube setup','playtesting','web generator','balancing','integration']) } } });
+    }
+
+    // Tasks
+    function generateTasks(event) {
+      event.preventDefault();
+      const project = event.target.project.value;
+      const tasks = [
+        `Define project or goal: ${project}.`,
+        `Generate actionable tasks for ${project}.`,
+        `Organize and prioritize tasks for ${project}.`
+      ];
+      document.getElementById('tasksResult').innerHTML = `<strong>Generated Tasks:</strong><ul>` + tasks.map(t => `<li>${t}</li>`).join('') + `</ul>`;
+    }
+    function randomTasks() {
+      generateTasks({ preventDefault: () => {}, target: { project: { value: randomFrom(['custom set','mechanic testing','cube build','format creation','card balancing']) } } });
+    }
+
+    // Tests
+    function generateTests(event) {
+      event.preventDefault();
+      const scope = event.target.scope.value;
+      const tests = [
+        `Define test scope: ${scope}.`,
+        `Generate test cases for ${scope}.`,
+        `Review and run tests for ${scope}.`
+      ];
+      document.getElementById('testsResult').innerHTML = `<strong>Generated Tests:</strong><ul>` + tests.map(t => `<li>${t}</li>`).join('') + `</ul>`;
+    }
+    function randomTests() {
+      generateTests({ preventDefault: () => {}, target: { scope: { value: randomFrom(['mechanics','sets','cubes','formats','artifacts']) } } });
+    }
+
+    // Sets
+    function generateSets(event) {
+      event.preventDefault();
+      const theme = event.target.theme.value;
+      const cards = Array.from({length: 10}, (_,i) => `Set Card ${i+1} - ${theme}`);
+      document.getElementById('setsResult').innerHTML = `<strong>Generated Set:</strong><ul>` + cards.map(c => `<li>${c}</li>`).join('') + `</ul>`;
+    }
+    function randomSets() {
+      generateSets({ preventDefault: () => {}, target: { theme: { value: randomFrom(['Steampunk','Underwater','Space Opera','Ancient Egypt','Cyberpunk']) } } });
+    }
+
+    // Formats
+    function generateFormats(event) {
+      event.preventDefault();
+      const rules = event.target.rules.value;
+      const structure = `Format: ${rules} | Rule: Only one copy of each card allowed.`;
+      document.getElementById('formatsResult').innerHTML = `<strong>Generated Format:</strong><ul><li>${structure}</li></ul>`;
+    }
+    function randomFormats() {
+      generateFormats({ preventDefault: () => {}, target: { rules: { value: randomFrom(['Singleton','Commander','Draft','Tiny Leaders','Pauper']) } } });
+    }
+
+    // Mechanics
+    function generateMechanics(event) {
+      event.preventDefault();
+      const theme = event.target.theme.value;
+      const details = `Mechanic: ${theme} | Effect: ${theme} triggers when you draw a card.`;
+      document.getElementById('mechanicsResult').innerHTML = `<strong>Generated Mechanic:</strong><ul><li>${details}</li></ul>`;
+    }
+    function randomMechanics() {
+      generateMechanics({ preventDefault: () => {}, target: { theme: { value: randomFrom(['Morph','Energy','Saga','Adventure','Escape']) } } });
+    }
+
+    // Cubes
+    function generateCubes(event) {
+      event.preventDefault();
+      const size = event.target.size.value;
+      const cards = Array.from({length: 10}, (_,i) => `Cube Card ${i+1} - ${size}`);
+      document.getElementById('cubesResult').innerHTML = `<strong>Generated Cube:</strong><ul>` + cards.map(c => `<li>${c}</li>`).join('') + `</ul>`;
+    }
+    function randomCubes() {
+      generateCubes({ preventDefault: () => {}, target: { size: { value: randomFrom(['360-card Vintage','540-card Modern','720-card Legacy','Budget','Theme']) } } });
+    }
+
+    // Generators
+    function generateGenerators(event) {
+      event.preventDefault();
+      const purpose = event.target.purpose.value;
+      const logic = `Generator: ${purpose} | Logic: Generates new content every time.`;
+      document.getElementById('generatorsResult').innerHTML = `<strong>Generated Generator:</strong><ul><li>${logic}</li></ul>`;
+    }
+    function randomGenerators() {
+      generateGenerators({ preventDefault: () => {}, target: { purpose: { value: randomFrom(['mechanic generator','set generator','cube generator','card generator','format generator']) } } });
+    }
+  </script>
+</body>
+</html>

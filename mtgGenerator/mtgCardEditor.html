@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom Magic Card Editor</title>
+  <style>
+        /* Glowing and animated effects */
+        .editor-container {
+          box-shadow: 0 0 32px #CC0000, 0 8px 32px #FFD700 inset;
+          transition: box-shadow 0.4s, background 0.4s;
+          animation: fadeIn 1s ease;
+        }
+        .card-preview {
+          box-shadow: 0 0 16px #FFD700, 0 2px 12px #CC0000 inset;
+          transition: box-shadow 0.4s, background 0.4s;
+          animation: popIn 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+        }
+        .card-form input:focus, .card-form textarea:focus, .card-form select:focus {
+          outline: none;
+          box-shadow: 0 0 8px #FFD700, 0 0 4px #CC0000 inset;
+          background: #333;
+          transition: box-shadow 0.3s, background 0.3s;
+        }
+        .export-btn {
+          box-shadow: 0 0 8px #FFD700;
+          transition: box-shadow 0.3s, background 0.3s, color 0.3s;
+        }
+        .export-btn:hover {
+          box-shadow: 0 0 16px #FFD700, 0 0 8px #CC0000 inset;
+          background: #CC0000;
+          color: #FFD700;
+        }
+        .theme-switcher button {
+          box-shadow: 0 0 8px #FFD700;
+          transition: box-shadow 0.3s, background 0.3s, color 0.3s;
+        }
+        .theme-switcher button.active {
+          box-shadow: 0 0 16px #FFD700, 0 0 8px #CC0000 inset;
+          background: #FFD700;
+          color: #CC0000;
+        }
+        .log-panel {
+          box-shadow: 0 0 16px #FFD700, 0 2px 12px #CC0000 inset;
+          transition: box-shadow 0.4s, background 0.4s;
+          animation: fadeIn 1s ease;
+        }
+        .log-header {
+          box-shadow: 0 0 8px #FFD700;
+          transition: box-shadow 0.3s, background 0.3s, color 0.3s;
+        }
+        .log-header:hover {
+          box-shadow: 0 0 16px #FFD700, 0 0 8px #CC0000 inset;
+          background: #FFD700;
+          color: #CC0000;
+        }
+        @keyframes fadeIn {
+          0% { opacity: 0; transform: translateY(40px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+          0% { opacity: 0; transform: scale(0.8); }
+          80% { opacity: 1; transform: scale(1.05); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+    @font-face {
+      font-family: 'AR CENA';
+      src: local('AR CENA'), url('https://fonts.cdnfonts.com/s/16299/ARCENA.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    body {
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+      font-size: 24px;
+      color: #CC0000;
+      background: #000;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+    .editor-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: rgba(40,40,40,0.95);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px #0008;
+      padding: 32px 24px 24px 24px;
+    }
+    h1 {
+      color: #CC0000;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+      margin-bottom: 24px;
+    }
+    .theme-switcher {
+      margin: 18px 0 32px 0;
+      text-align: center;
+    }
+    .theme-switcher button {
+      background: #222;
+      color: #FFD700;
+      border: 2px solid #FFD700;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 1em;
+      margin: 0 8px;
+      cursor: pointer;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+      transition: background 0.2s, color 0.2s;
+    }
+    .theme-switcher button.active {
+      background: #FFD700;
+      color: #CC0000;
+    }
+    .card-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .card-form input, .card-form textarea, .card-form select {
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+      font-size: 1em;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #FFD700;
+      background: #222;
+      color: #FFD700;
+      width: 260px;
+      margin-bottom: 6px;
+    }
+    .card-form button {
+      background: #FFD700;
+      color: #CC0000;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 24px;
+      font-size: 1em;
+      cursor: pointer;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+      transition: background 0.2s, color 0.2s;
+    }
+    .card-form button:hover {
+      background: #CC0000;
+      color: #FFD700;
+    }
+    .card-preview {
+      background: #222;
+      color: #FFD700;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #0003;
+      padding: 24px 18px;
+      margin: 24px auto;
+      max-width: 420px;
+      text-align: left;
+      font-size: 1.1em;
+    }
+    .card-preview img {
+      max-width: 180px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px #0006;
+      margin-bottom: 12px;
+    }
+    .template-select {
+      margin-bottom: 18px;
+    }
+    .export-btn {
+      background: #FFD700;
+      color: #CC0000;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 24px;
+      font-size: 1em;
+      cursor: pointer;
+      font-family: 'AR CENA', Arial, sans-serif;
+      font-variant: small-caps;
+      margin-top: 18px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .export-btn:hover {
+      background: #CC0000;
+      color: #FFD700;
+    }
+  </style>
+</head>
+<body>
+    <div class="theme-switcher">
+      <button onclick="setTheme('classic')" id="themeClassic" class="active">Classic</button>
+      <button onclick="setTheme('dark')" id="themeDark">Dark</button>
+      <button onclick="setTheme('gold')" id="themeGold">Gold</button>
+      <button onclick="setTheme('forest')" id="themeForest">Forest</button>
+    </div>
+    <div class="editor-container">
+      <h1>Custom Magic Card Editor</h1>
+      <div class="template-select">
+        <label for="template">Choose a template:</label>
+        <select id="template" onchange="applyTemplate()">
+          <option value="blank">Blank</option>
+          <option value="creature">Creature</option>
+          <option value="spell">Spell</option>
+          <option value="artifact">Artifact</option>
+          <option value="land">Land</option>
+        </select>
+      </div>
+      <form class="card-form" id="cardForm" onsubmit="createCustomCard(event)">
+        <input type="text" name="name" placeholder="Card Name" required>
+        <input type="text" name="type" placeholder="Type Line" required>
+        <input type="text" name="mana" placeholder="Mana Cost">
+        <textarea name="text" placeholder="Rules Text" rows="3"></textarea>
+        <input type="text" name="flavor" placeholder="Flavor Text">
+        <input type="text" name="power" placeholder="Power">
+        <input type="text" name="toughness" placeholder="Toughness">
+        <input type="text" name="image" placeholder="Image URL (optional)">
+        <button type="submit">Create Card</button>
+        <button type="button" onclick="fetchScryfallCard()">Inspire from Scryfall</button>
+      </form>
+      <div id="loadingIcon" style="display:none;margin:24px auto;text-align:center;">
+        <img src="https://cdn-icons-png.flaticon.com/512/189/189792.png" alt="Loading" style="width:48px;animation:spin 1s linear infinite;">
+        <div id="loadingPercent" style="color:#FFD700;font-size:1.2em;margin-top:8px;">0%</div>
+      </div>
+      <div id="cardPreview" class="card-preview"></div>
+      <button class="export-btn" onclick="exportCard()">Export Card as PNG</button>
+    </div>
+    <div id="logPanel" class="log-panel">
+      <div class="log-header" onmousedown="startDrag(event)">Log <button onclick="resizeLog()" style="float:right;background:#FFD700;color:#CC0000;border:none;border-radius:4px;padding:2px 8px;font-size:0.8em;">Resize</button></div>
+      <div class="log-content" id="logContent"></div>
+    </div>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .log-panel {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 340px;
+        height: 220px;
+        background: #222;
+        color: #FFD700;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px #0008;
+        z-index: 999;
+        resize: both;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .log-header {
+        background: #FFD700;
+        color: #CC0000;
+        font-family: 'AR CENA', Arial, sans-serif;
+        font-variant: small-caps;
+        padding: 8px 12px;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        cursor: move;
+        user-select: none;
+        font-size: 1em;
+      }
+      .log-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 12px;
+        font-size: 0.95em;
+        text-align: left;
+      }
+  <div class="theme-switcher">
+    <button onclick="setTheme('classic')" id="themeClassic" class="active">Classic</button>
+    <button onclick="setTheme('dark')" id="themeDark">Dark</button>
+    <button onclick="setTheme('gold')" id="themeGold">Gold</button>
+    <button onclick="setTheme('forest')" id="themeForest">Forest</button>
+  </div>
+  <div class="editor-container">
+    <h1>Custom Magic Card Editor</h1>
+    <div class="template-select">
+      <label for="template">Choose a template:</label>
+      <select id="template" onchange="applyTemplate()">
+        <option value="blank">Blank</option>
+        <option value="creature">Creature</option>
+        <option value="spell">Spell</option>
+        <option value="artifact">Artifact</option>
+        <option value="land">Land</option>
+      </select>
+    </div>
+    <form class="card-form" id="cardForm" onsubmit="createCustomCard(event)">
+      <input type="text" name="name" placeholder="Card Name" required>
+      <input type="text" name="type" placeholder="Type Line" required>
+      <input type="text" name="mana" placeholder="Mana Cost">
+      <textarea name="text" placeholder="Rules Text" rows="3"></textarea>
+      <input type="text" name="flavor" placeholder="Flavor Text">
+      <input type="text" name="power" placeholder="Power">
+      <input type="text" name="toughness" placeholder="Toughness">
+      <input type="text" name="image" placeholder="Image URL (optional)">
+      <button type="submit">Create Card</button>
+      <button type="button" onclick="fetchScryfallCard()">Inspire from Scryfall</button>
+    </form>
+    <div id="cardPreview" class="card-preview"></div>
+    <button class="export-btn" onclick="exportCard()">Export Card as PNG</button>
+  </div>
+  <script>
+        function fetchScryfallCard() {
+          log('Fetching random Scryfall card...');
+          const preview = document.getElementById('cardPreview');
+          const loading = document.getElementById('loadingIcon');
+          const percent = document.getElementById('loadingPercent');
+          preview.innerHTML = '';
+          loading.style.display = 'block';
+          percent.innerText = '0%';
+          let progress = 0;
+          const interval = setInterval(() => {
+            progress = Math.min(progress + Math.random() * 20, 90);
+            percent.innerText = Math.floor(progress) + '%';
+          }, 200);
+          fetch('https://api.scryfall.com/cards/random')
+            .then(response => {
+              percent.innerText = '95%';
+              return response.json();
+            })
+            .then(card => {
+              clearInterval(interval);
+              percent.innerText = '100%';
+              setTimeout(() => { loading.style.display = 'none'; }, 400);
+              const form = document.getElementById('cardForm');
+              form.name.value = card.name;
+              form.type.value = card.type_line;
+              form.mana.value = card.mana_cost || '';
+              form.text.value = card.oracle_text || '';
+              form.flavor.value = card.flavor_text || '';
+              form.power.value = card.power || '';
+              form.toughness.value = card.toughness || '';
+              form.image.value = card.image_uris ? card.image_uris.normal : (card.card_faces ? card.card_faces[0].image_uris.normal : '');
+              renderCard({
+                name: card.name,
+                type: card.type_line,
+                mana: card.mana_cost || '',
+                text: card.oracle_text || '',
+                flavor: card.flavor_text || '',
+                power: card.power || '',
+                toughness: card.toughness || '',
+                image: card.image_uris ? card.image_uris.normal : (card.card_faces ? card.card_faces[0].image_uris.normal : '')
+              });
+              log('Fetched card: ' + card.name);
+            })
+            .catch(err => {
+              clearInterval(interval);
+              loading.style.display = 'none';
+              preview.innerHTML = 'Error fetching inspiration.';
+              log('Error fetching Scryfall card.');
+            });
+        }
+        // Log panel logic
+        function log(msg) {
+          const logContent = document.getElementById('logContent');
+          const time = new Date().toLocaleTimeString();
+          logContent.innerHTML += `<div>[${time}] ${msg}</div>`;
+          logContent.scrollTop = logContent.scrollHeight;
+        }
+        // Make log panel draggable
+        let drag = false, offsetX = 0, offsetY = 0;
+        function startDrag(e) {
+          drag = true;
+          offsetX = e.clientX - document.getElementById('logPanel').offsetLeft;
+          offsetY = e.clientY - document.getElementById('logPanel').offsetTop;
+          document.onmousemove = dragLog;
+          document.onmouseup = stopDrag;
+        }
+        function dragLog(e) {
+          if (!drag) return;
+          const panel = document.getElementById('logPanel');
+          panel.style.left = (e.clientX - offsetX) + 'px';
+          panel.style.top = (e.clientY - offsetY) + 'px';
+          panel.style.right = 'auto';
+          panel.style.bottom = 'auto';
+        }
+        function stopDrag() {
+          drag = false;
+          document.onmousemove = null;
+          document.onmouseup = null;
+        }
+        // Make log panel resizable
+        function resizeLog() {
+          const panel = document.getElementById('logPanel');
+          if (panel.style.width === '340px') {
+            panel.style.width = '600px';
+            panel.style.height = '400px';
+          } else {
+            panel.style.width = '340px';
+            panel.style.height = '220px';
+          }
+          log('Log panel resized.');
+        }
+        // Log actions
+        document.getElementById('cardForm').addEventListener('submit', function() { log('Custom card created.'); });
+        document.querySelector('.export-btn').addEventListener('click', function() { log('Card exported as PNG.'); });
+    function setTheme(theme) {
+      document.body.className = '';
+      document.getElementById('themeClassic').classList.remove('active');
+      document.getElementById('themeDark').classList.remove('active');
+      document.getElementById('themeGold').classList.remove('active');
+      document.getElementById('themeForest').classList.remove('active');
+      if (theme === 'classic') {
+        document.body.style.background = '#000';
+        document.body.style.color = '#CC0000';
+        document.getElementById('themeClassic').classList.add('active');
+      } else if (theme === 'dark') {
+        document.body.style.background = 'linear-gradient(135deg, #232526 0%, #414345 100%)';
+        document.body.style.color = '#f5f5f5';
+        document.getElementById('themeDark').classList.add('active');
+      } else if (theme === 'gold') {
+        document.body.style.background = 'linear-gradient(135deg, #FFD700 0%, #CC0000 100%)';
+        document.body.style.color = '#232526';
+        document.getElementById('themeGold').classList.add('active');
+      } else if (theme === 'forest') {
+        document.body.style.background = 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)';
+        document.body.style.color = '#FFD700';
+        document.getElementById('themeForest').classList.add('active');
+      }
+    }
+    setTheme('classic');
+
+    function applyTemplate() {
+      const t = document.getElementById('template').value;
+      const form = document.getElementById('cardForm');
+      if (t === 'blank') {
+        form.type.value = '';
+        form.mana.value = '';
+        form.text.value = '';
+        form.flavor.value = '';
+        form.power.value = '';
+        form.toughness.value = '';
+      } else if (t === 'creature') {
+        form.type.value = 'Creature — [Subtype]';
+        form.mana.value = '{2}{G}';
+        form.text.value = 'Trample\nWhenever this creature attacks, draw a card.';
+        form.flavor.value = 'A force of nature.';
+        form.power.value = '3';
+        form.toughness.value = '3';
+      } else if (t === 'spell') {
+        form.type.value = 'Instant';
+        form.mana.value = '{1}{U}';
+        form.text.value = 'Counter target spell.';
+        form.flavor.value = '"Not today."';
+        form.power.value = '';
+        form.toughness.value = '';
+      } else if (t === 'artifact') {
+        form.type.value = 'Artifact';
+        form.mana.value = '{3}';
+        form.text.value = 'Tap: Add one mana of any color.';
+        form.flavor.value = 'A relic of forgotten times.';
+        form.power.value = '';
+        form.toughness.value = '';
+      } else if (t === 'land') {
+        form.type.value = 'Land';
+        form.mana.value = '';
+        form.text.value = 'Tap: Add {G}.';
+        form.flavor.value = 'The heart of the forest.';
+        form.power.value = '';
+        form.toughness.value = '';
+      }
+    }
+
+    function createCustomCard(event) {
+      event.preventDefault();
+      const form = event.target;
+      const card = {
+        name: form.name.value,
+        type: form.type.value,
+        mana: form.mana.value,
+        text: form.text.value,
+        flavor: form.flavor.value,
+        power: form.power.value,
+        toughness: form.toughness.value,
+        image: form.image.value
+      };
+      renderCard(card);
+    }
+
+    function renderCard(card) {
+      const preview = document.getElementById('cardPreview');
+      preview.innerHTML = `
+        <strong style="font-size:1.2em;color:#FFD700;">${card.name}</strong><br>
+        <em>${card.type}</em><br>
+        <span style="color:#CC0000">Mana Cost: ${card.mana || 'N/A'}</span><br>
+        <span>${card.text.replace(/\n/g,'<br>')}</span><br>
+        <span style="color:#aaa">Flavor: ${card.flavor || ''}</span><br>
+        <span>Power/Toughness: ${card.power || ''}/${card.toughness || ''}</span><br>
+        ${card.image ? `<img src="${card.image}" alt="card art">` : ''}
+      `;
+    }
+
+    function fetchScryfallCard() {
+      const preview = document.getElementById('cardPreview');
+      preview.innerHTML = 'Loading inspiration...';
+      fetch('https://api.scryfall.com/cards/random')
+        .then(response => response.json())
+        .then(card => {
+          const form = document.getElementById('cardForm');
+          form.name.value = card.name;
+          form.type.value = card.type_line;
+          form.mana.value = card.mana_cost || '';
+          form.text.value = card.oracle_text || '';
+          form.flavor.value = card.flavor_text || '';
+          form.power.value = card.power || '';
+          form.toughness.value = card.toughness || '';
+          form.image.value = card.image_uris ? card.image_uris.normal : (card.card_faces ? card.card_faces[0].image_uris.normal : '');
+          renderCard({
+            name: card.name,
+            type: card.type_line,
+            mana: card.mana_cost || '',
+            text: card.oracle_text || '',
+            flavor: card.flavor_text || '',
+            power: card.power || '',
+            toughness: card.toughness || '',
+            image: card.image_uris ? card.image_uris.normal : (card.card_faces ? card.card_faces[0].image_uris.normal : '')
+          });
+        })
+        .catch(err => {
+          preview.innerHTML = 'Error fetching inspiration.';
+        });
+    }
+
+    function exportCard() {
+      const preview = document.getElementById('cardPreview');
+      html2canvas(preview).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'custom-magic-card.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+    // Load html2canvas library for export
+    (function() {
+      var script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      document.head.appendChild(script);
+    })();
+  </script>
+</body>
+</html>
